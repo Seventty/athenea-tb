@@ -1,11 +1,9 @@
 import { Module } from '@nestjs/common';
 import { TelegrafModule } from 'nestjs-telegraf';
 import { LoggerMiddleware } from 'src/middleware/logger.middleware';
-import { AlertModule } from '../alert/alert.module';
 
 @Module({
   imports: [
-    AlertModule,
     TelegrafModule.forRootAsync({
       botName: 'Athenea',
       imports: [],

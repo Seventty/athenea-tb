@@ -1,18 +1,18 @@
-/* import { Start, Update, Sender, Command } from 'nestjs-telegraf';
-import { UpdateType } from 'src/common/decorators/update-type.decorator';
-import { UpdateType as TelegrafUpdateType } from 'telegraf/typings/telegram-types'; */
-
-import { Ctx, Update } from 'nestjs-telegraf';
-import { Cron, CronExpression } from '@nestjs/schedule';
 import { Injectable } from '@nestjs/common';
+import { Cron, CronExpression } from '@nestjs/schedule';
+import { InjectBot } from 'nestjs-telegraf';
+import { Context, Telegraf } from 'telegraf';
 
-@Update()
 @Injectable()
 export class AlertService {
-  constructor() {}
+  constructor(
+    @InjectBot('Athenea') private readonly bot: Telegraf<Context>,
+  ) {}
 
-  @Cron(CronExpression.EVERY_MINUTE)
-  handleCron() {
-    console.log('Hello World - cada minuto');
+  @Cron(CronExpression.EVERY_MINUTE, { timeZone: 'America/Santo_Domingo' })
+  async handleCron() {
+    const groupId = process.env.ECONOMYC_NEWSPAPER_GROUP_ID || "";
+    console.log("Disque ejecutando mensaje cada minuto")
+    await this.bot.telegram.sendMessage(groupId, 'Hello World desde cron 🕒', { message_thread_id: 3 });
   }
 }
