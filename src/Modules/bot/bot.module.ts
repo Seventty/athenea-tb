@@ -1,9 +1,15 @@
 import { Module } from '@nestjs/common';
 import { TelegrafModule } from 'nestjs-telegraf';
 import { LoggerMiddleware } from 'src/middleware/logger.middleware';
+import { DebugModule } from '../debug/debug.module';
+import { AlertModule } from '../alert/alert.module';
+import { ShareModule } from '../share/share.module';
 
 @Module({
   imports: [
+    AlertModule,
+    ShareModule,
+    DebugModule,
     TelegrafModule.forRootAsync({
       botName: 'Athenea',
       imports: [],

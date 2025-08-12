@@ -1,13 +1,10 @@
-import { BotModule } from '../bot/bot.module';
+import { ShareModule } from '../share/share.module';
 import { AlertService } from './alert.service';
-/*
-https://docs.nestjs.com/modules
-*/
 
 import { Module } from '@nestjs/common';
 
 @Module({
-  imports: [BotModule],
+  imports: [ShareModule],
   providers: [AlertService],
 })
 export class AlertModule {}
