@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { InjectBot } from 'nestjs-telegraf';
 import { Context, Telegraf } from 'telegraf';
-import { EscapeMarkdownService } from '../share/services/escape-markdown.service';
 import { MarketAnalysisService } from '../share/services/market-analysis.service';
 import { SendLongMessagesService } from '../share/services/send-long-messages.service';
 
@@ -14,7 +13,7 @@ export class AlertService {
     private sendLongMessageService: SendLongMessagesService,
   ) {}
 
-  @Cron(CronExpression.EVERY_MINUTE, { timeZone: 'America/Santo_Domingo' })
+  @Cron('0 9 * * *', { timeZone: 'America/Santo_Domingo' })
   async handleCron() {
     const groupId = process.env.ECONOMYC_NEWSPAPER_GROUP_ID || '';
     const raw = await this.llm.generateAnalysis();
