@@ -24,7 +24,6 @@ export class ChatGptService {
 
     this.http = axios.create({
       baseURL: 'https://api.openai.com/v1',
-      timeout: 30_000,
       headers: {
         Authorization: `Bearer ${this.apiKey}`,
         'Content-Type': 'application/json',

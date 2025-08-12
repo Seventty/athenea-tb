@@ -1,7 +1,7 @@
 // market-analysis.service.ts
 import { Injectable } from '@nestjs/common';
 import { TwelveDataService } from './twelve-data.service';
-import { ChatGptService } from './chatgpt.service';
+import { ChatGptService, ChatMessage } from './chatgpt.service';
 
 @Injectable()
 export class MarketAnalysisService {
@@ -10,13 +10,13 @@ export class MarketAnalysisService {
     private readonly chatGpt: ChatGptService,
   ) {}
 
-   fecha = new Date();
+  fecha = new Date();
 
   fullDate = this.fecha.toLocaleDateString('es-ES', {
     weekday: 'long',
     year: 'numeric',
     month: 'long',
-    day: 'numeric'
+    day: 'numeric',
   });
 
   async generateAnalysis() {
@@ -28,71 +28,67 @@ export class MarketAnalysisService {
         this.twelve.getIndicators('EUR/USD'),
       ]);
 
-    const fullPrompt = {
-      role: 'user' as const,
-      content: `Actúa como un trader institucional y analista macroeconómico de alto nivel. Vas a recibir datos fundamentales y técnicos del día para generar un análisis completo, detallado y accionable para operar índices bursátiles y pares de divisas. Quiero que observes la información y luego generes un informe de mercado estructurado como se indica a continuación. Usa lenguaje profesional, conciso y enfocado en decisiones de trading. Sé preciso, analítico y evita opiniones vagas.
+    const prompt: ChatMessage = {
+      role: 'user',
+      content: `
+Actúa como un trader institucional y analista macroeconómico de alto nivel. Vas a recibir datos fundamentales y técnicos del día para generar un análisis completo y profesional, optimizado para ser enviado por Telegram usando texto plano y emojis, sin formato Markdown.
 
-El formato del análisis debe ser el siguiente:
+*REGLAS DE FORMATO (importante):*
+- NO uses Markdown, ni *negritas*, _cursivas_, ~tachado~, \`inline code\`, ni ## encabezados.
+- Usa solamente texto plano y emojis para darle estructura y vida al mensaje.
+- Usa saltos de línea reales con \\n para separar bloques y hacerlo legible en Telegram.
+- No uses caracteres conflictivos como *, _, ~, [, ], (, ), \\, {, }, <, >, |, #, =, +, -, ., ! ni MarkdownV2.
+- Puedes usar emojis como título de sección (📊, 📈, 🎯, 🧠, etc.).
+- Usa ">" como bloque visual tipo quote (opcional, solo si no hay errores).
 
-## 📰 Calendario Económico Clave
-Resume brevemente los eventos de alto impacto del día ${this.fullDate}. Explica cuál evento podría mover el mercado y por qué. Enfócate especialmente en datos de EE.UU. y Europa si están presentes.
+*EJEMPLO DE FORMATO ESPERADO:*
 
-## 📈 Análisis Técnico y Sentimiento
+⏳ Reporte de: Fecha del momento y hora en formato DD-MM-YYYY / HH:MM PM/AM
 
-### NASDAQ 100
-- Precio actual, % cambio
-- RSI, MACD, EMAs
-- Niveles de soporte y resistencia
-- Resumen técnico y bias esperado
-- ¿Está sobrecomprado o sobrevendido?
-- ¿Hay momentum? ¿Divergencia técnica?
+📰 CALENDARIO ECONÓMICO CLAVE  
+Fecha: martes, 12 de agosto de 2025  
+Evento esperado: IPC USA  
+Impacto probable: Alta volatilidad en índices y pares con USD  
 
-### EUR/USD
-- Mismo análisis técnico que Nasdaq
-- ¿Qué relación tiene con el DXY hoy?
+📈 NASDAQ 100  
+Precio actual: 15,430.21 (+1.12%)  
+Indicadores: RSI 68, MACD alcista, EMA20 actuando como soporte  
+Soportes / Resistencias: S: 15,300 / R: 15,500  
+Bias técnico: Alcista con sobrecompra leve  
 
-### Otros activos destacados (si están disponibles)
-- Analiza solo si tienen movimiento relevante (alto cambio porcentual o volumen)
+📊 EUR/USD  
+Precio actual: 1.0965 (+0.40%)  
+RSI: 62  
+MACD: cruz alcista reciente  
+EMA20: soporte dinámico confirmado  
+Bias: Alcista si el DXY sigue débil  
 
-## 🎯 Estrategia sugerida
-Con base en la data anterior:
-- ¿Qué activos tienen mayor probabilidad de moverse?
-- ¿Qué dirección sugiere el análisis técnico?
-- ¿Cuál sería la mejor hora para operar? ¿Antes o después de un evento?
-- ¿Qué tipo de setup buscar? (ruptura, pullback, rango)
+🎯 ESTRATEGIA SUGERIDA  
+Oportunidad: EUR/USD en pullback a EMA20  
+Hora ideal: Después del dato clave  
+Setup: Esperar retroceso y confirmación para entrar largo  
 
-## 🧠 Conclusión
-Cierra con un resumen ejecutivo: cuál es el sesgo del día para cada activo, qué oportunidades se abren y qué riesgos evitar.
+🧠 CONCLUSIÓN  
+Sesgo del día: Alcista en EUR/USD / Neutro en Nasdaq  
+Oportunidad destacada: EUR/USD con confluencia técnica y fundamental  
+Recomendación: Esperar confirmación post-evento antes de ejecutar entrada  
 
-### ⚠️ Reglas:
-- Si algún activo muestra confluencia clara entre técnico y fundamental, resáltalo como oportunidad prioritaria.
-- Si hay conflicto entre indicadores, explica y recomienda esperar confirmación.
+Ahora genera el análisis con ese formato exacto usando los siguientes datos:
 
-### 📥 Datos de entrada
-Los siguientes bloques de datos son los que vas a procesar:
-- calendarioEconomico
-- resumenTecnico
-- indicadores
-- nivelesSoporteResistencia
-- preciosActuales
-- momentumObservado
-
-Analízalos como un analista institucional, y entrega el análisis detallado como se solicitó."
-      
-      {
-        "preciosActuales": {
-          "NDX": ${JSON.stringify(quoteNasdaq)},
-          "EUR/USD": ${JSON.stringify(quoteEurUsd)}
-        },
-        "resumenTecnico": {
-          "NDX": ${JSON.stringify(techNasdaq)},
-          "EUR/USD": ${JSON.stringify(techEurUsd)}
-        },
-        
-      }`,
+{
+  "preciosActuales": {
+    "NDX": ${JSON.stringify(quoteNasdaq)},
+    "EUR/USD": ${JSON.stringify(quoteEurUsd)}
+  },
+  "resumenTecnico": {
+    "NDX": ${JSON.stringify(techNasdaq)},
+    "EUR/USD": ${JSON.stringify(techEurUsd)}
+  },
+}
+`,
     };
 
-    const result = await this.chatGpt.complete([fullPrompt]);
+    const result = await this.chatGpt.complete([prompt]);
     return result;
   }
 }
